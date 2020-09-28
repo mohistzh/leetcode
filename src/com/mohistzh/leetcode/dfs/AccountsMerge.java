@@ -31,6 +31,19 @@ import java.util.*;
  * @Date 2020/9/28
  **/
 public class AccountsMerge {
+    /**
+     * Intuition
+     *
+     * Draw an edge between two emails if they occur in the same account. The problem comes down to finding connected components of this graph.
+     *
+     * Algorithm
+     *
+     * For each account, draw the edge from the first email to all other emails. Additionally, we'll remember a map from emails to names on the side.
+     * After finding each connected component using a depth-first search, we'll add that to our answer.
+     *
+     * @param input
+     * @return
+     */
     public static List<List<String>> mergeAccounts(String[][] input) {
         Map<String, List<String>> graph = new HashMap<>();
         Map<String, String> emailToName = new HashMap<>();
