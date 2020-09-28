@@ -1,5 +1,8 @@
 package com.mohistzh.leetcode.bfs;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Given an N x N grid containing only values 0 and 1, where 0 represents water and 1 represents land, find a water cell such that its distance to the nearest land cell is maximized and return the distance.
  *
@@ -42,7 +45,69 @@ package com.mohistzh.leetcode.bfs;
 public class AsFarFromLandAsPossible1162 {
 
     public static int maxDistance(int[][] grid) {
-        return -1;
+        int maxDistance = -1;
+        /**
+         * find all lands' coordinates
+         */
+        List<Coordinate> lands = new ArrayList<>();
+        int row = grid.length, col = grid[0].length;
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                if (grid[i][j] == 1) { //lands
+                    lands.add(new Coordinate(i, j));
+                }
+            }
+        }
+        if (lands.size() == 0) return maxDistance;
+
+        /**
+         * find the closest land from each water cell
+         */
+
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                if (grid[i][j] == 0) { //water
+                    int nearestLandDistance = findNearestLand(lands, new Coordinate(i, j));
+                    /**
+                     * find the maximum value of the closest land distances among each water cells.
+                     */
+                    if (nearestLandDistance > maxDistance) {
+                        maxDistance = nearestLandDistance;
+                    }
+                }
+            }
+        }
+
+
+
+        return maxDistance;
+    }
+
+    /**
+     * find nearest land from the water cell
+     * @param lands
+     * @param water
+     * @return
+     */
+    private static int findNearestLand(List<Coordinate> lands, Coordinate water) {
+        int nearest = Integer.MAX_VALUE;
+        for (Coordinate land : lands) {
+            int distance = distance(land, water);
+            if (distance < nearest) {
+                nearest = distance;
+            }
+        }
+        return nearest;
+    }
+
+    /**
+     * calculate distance between two locations
+     * @param p
+     * @param q
+     * @return
+     */
+    private static int distance(Coordinate p, Coordinate q) {
+        return Math.abs(p.x - q.x) + Math.abs(p.y - q.y);
     }
     public static void main(String[] args) {
         int[][] sample1 = {
@@ -59,5 +124,14 @@ public class AsFarFromLandAsPossible1162 {
         System.out.println(maxDistance(sample1));
         System.out.println(maxDistance(sample2));
 
+    }
+
+}
+
+class Coordinate {
+    int x, y;
+    public Coordinate(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 }
