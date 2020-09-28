@@ -45,37 +45,54 @@ public class AccountsMerge {
      * @return
      */
     public static List<List<String>> mergeAccounts(String[][] input) {
+        /**
+         * 0. elements with the same email are connected together
+         * 1. find the same email
+         * 2. merge them into a new list
+         */
+
         Map<String, List<String>> graph = new HashMap<>();
         Map<String, String> emailToName = new HashMap<>();
         /**
-         * build graph
+         * build a graph
          */
         for (String[] account : input) {
             String name = "";
             for (String email : account) {
                 if ("".equals(name)) {
+                    // remind the name
                     name = email;
                     continue;
                 }
-                graph.computeIfAbsent(email, x-> new ArrayList<String>()).add(account[1]);
-                graph.computeIfAbsent(account[1], x-> new ArrayList<String>()).add(email);
+                /**
+                 * use an certainly un-empty (the second element of the account list shouldn't be empty) element as our component to build pairs
+                 */
+                String component = account[1];
+                graph.computeIfAbsent(email, s -> new ArrayList<String>()).add(component);
+                graph.computeIfAbsent(component, s -> new ArrayList<String>()).add(email);
                 emailToName.put(email, name);
             }
         }
-        Set<String> seen = new HashSet<>();
+
         List<List<String>> result = new ArrayList<>();
+        Set<String> memo = new HashSet<>();
+
+        /**
+         * DFS
+         */
         for (String email : graph.keySet()) {
-            if (!seen.contains(email)) {
-                seen.add(email);
+            if (!memo.contains(email)) {
+                memo.add(email);
                 Stack<String> stack = new Stack<>();
                 stack.push(email);
                 List<String> components = new ArrayList<>();
                 while (!stack.isEmpty()) {
                     String node = stack.pop();
                     components.add(node);
-                    for (String neighbor : graph.get(node)) {
-                        if (!seen.contains(neighbor)) {
-                            seen.add(neighbor);
+                    List<String> edges = graph.get(node);
+                    for (String neighbor : edges) {
+                        if (!memo.contains(neighbor)) {
+                            memo.add(neighbor);
                             stack.push(neighbor);
                         }
                     }
