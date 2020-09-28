@@ -1,5 +1,7 @@
 package com.mohistzh.leetcode.dfs;
 
+import java.util.*;
+
 /**
  Given a list accounts, each element accounts[i] is a list of strings, where the first element accounts[i][0] is a name, and the rest of the elements are emails representing emails of the account.
 
@@ -12,6 +14,7 @@ package com.mohistzh.leetcode.dfs;
  Input:
  accounts = [["John", "johnsmith@mail.com", "john00@mail.com"], ["John", "johnnybravo@mail.com"], ["John", "johnsmith@mail.com", "john_newyork@mail.com"], ["Mary", "mary@mail.com"]]
  Output: [["John", 'john00@mail.com', 'john_newyork@mail.com', 'johnsmith@mail.com'],  ["John", "johnnybravo@mail.com"], ["Mary", "mary@mail.com"]]
+
  Explanation:
  The first and third John's are the same person as they have the common email "johnsmith@mail.com".
  The second John and Mary are different people as none of their email addresses are used by other accounts.
@@ -28,5 +31,61 @@ package com.mohistzh.leetcode.dfs;
  * @Date 2020/9/28
  **/
 public class AccountsMerge {
+    public static List<List<String>> mergeAccounts(String[][] input) {
+        Map<String, List<String>> graph = new HashMap<>();
+        Map<String, String> emailToName = new HashMap<>();
+        /**
+         * build graph
+         */
+        for (String[] account : input) {
+            String name = "";
+            for (String email : account) {
+                if ("".equals(name)) {
+                    name = email;
+                    continue;
+                }
+                graph.computeIfAbsent(email, x-> new ArrayList<String>()).add(account[1]);
+                graph.computeIfAbsent(account[1], x-> new ArrayList<String>()).add(email);
+                emailToName.put(email, name);
+            }
+        }
+        Set<String> seen = new HashSet<>();
+        List<List<String>> result = new ArrayList<>();
+        for (String email : graph.keySet()) {
+            if (!seen.contains(email)) {
+                seen.add(email);
+                Stack<String> stack = new Stack<>();
+                stack.push(email);
+                List<String> components = new ArrayList<>();
+                while (!stack.isEmpty()) {
+                    String node = stack.pop();
+                    components.add(node);
+                    for (String neighbor : graph.get(node)) {
+                        if (!seen.contains(neighbor)) {
+                            seen.add(neighbor);
+                            stack.push(neighbor);
+                        }
+                    }
+                }
+                Collections.sort(components);
+                components.add(0, emailToName.get(email));
+                result.add(components);
+            }
+        }
+        return result;
+    }
+
+
+    public static void main(String[] args) {
+        String[][] accounts = {
+                {"John", "johnsmith@mail.com", "john00@mail.com"},
+                {"John", "johnnybravo@mail.com"},
+                {"John", "johnsmith@mail.com", "john_newyork@mail.com"},
+                {"Mary", "mary@mail.com"}
+        };
+        List<List<String>> result = mergeAccounts(accounts);
+        System.out.println(result);
+
+    }
 
 }
