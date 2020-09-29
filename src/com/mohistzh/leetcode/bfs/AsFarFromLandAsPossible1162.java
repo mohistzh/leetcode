@@ -1,7 +1,6 @@
 package com.mohistzh.leetcode.bfs;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Given an N x N grid containing only values 0 and 1, where 0 represents water and 1 represents land, find a water cell such that its distance to the nearest land cell is maximized and return the distance.
@@ -44,7 +43,62 @@ import java.util.List;
  **/
 public class AsFarFromLandAsPossible1162 {
 
+
+    private static final int[][] directions = {
+            {-1, 0}, // up
+            {1, 0},  // down
+            {0, -1}, //left
+            {0, 1}   //right
+    };
+    /**
+     * bfs approach
+     * @param grid
+     * @return
+     */
     public static int maxDistance(int[][] grid) {
+        Queue<Coordinate> queue = new LinkedList<>();
+        int row = grid.length, col = grid[0].length;
+        boolean[][] visited = new boolean[row][col];
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                if (grid[i][j] == 1) {
+                    queue.add(new Coordinate(i, j));
+                    visited[i][j] = true;
+                }
+            }
+        }
+
+        if (queue.size() == 0 || queue.size() == row * col) {
+            return -1;
+        }
+        int ans = 0;
+        while (!queue.isEmpty()) {
+            ans++;
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                Coordinate coordinate = queue.poll();
+                for (int[] direction : directions) {
+                    int x = coordinate.x + direction[0];
+                    int y = coordinate.y + direction[1];
+                    if (x < 0 || x >= row || y < 0 || y >= row || visited[x][y]) {
+                        continue;
+                    }
+                    visited[x][y] = true;
+                    queue.add(new Coordinate(x, y));
+                }
+            }
+
+        }
+        return ans - 1;
+    }
+
+
+    /**
+     * brute force approach
+     * @param grid
+     * @return
+     */
+    public static int maxDistanceBF(int[][] grid) {
         int maxDistance = -1;
         /**
          * find all lands' coordinates
